@@ -13,8 +13,20 @@ class TaskTest extends TestCase
      */
     public function test_api_return_tasks_list(): void
     {
-        $response = $this->get('/api/tasks');
+        $response = $this->getjson('/api/tasks');
 
         $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'tasks' => [
+                '*' => [
+                    'id',
+                    'title',
+                    'description',
+                    'created_at',
+                    'update_at'
+                ]
+            ]
+        ]);
     }
 }
