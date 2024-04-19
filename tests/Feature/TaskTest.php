@@ -45,4 +45,18 @@ class TaskTest extends TestCase
         $response->assertStatus(200);
         $this->assertDatabaseHas('tasks', $taskData);
     }
+
+    public function test_api_check_save_data()
+    {
+        $task = [
+            'title' => 'test title',
+            'description' => 'test description',
+            'status' => 'test status'
+        ];
+
+        $response = $this->postJson('/api/tasks', $task);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('tasks', $task);
+    }
 }
