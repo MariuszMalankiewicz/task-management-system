@@ -59,4 +59,18 @@ class TaskTest extends TestCase
         $response->assertStatus(201);
         $this->assertDatabaseHas('tasks', $task);
     }
+
+    public function test_api_invalid_validation_required()
+    {
+        $task = [
+            'title' => '',
+            'description' => '',
+        ];
+
+        $response = $this->postJson('/api/tasks', $task);
+
+        $response->assertInvalid(['title', 'description']);
+        $response->assertStatus(422);
+        $this->assertDatabaseMissing('tasks', $task);
+    }
 }
