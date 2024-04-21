@@ -99,6 +99,8 @@ class TaskTest extends TestCase
             'description' => 'description',
         ];
 
+        Task::create($task);
+
         $response = $this->getJson('/api/task/1');
 
         $response->assertStatus(404);
