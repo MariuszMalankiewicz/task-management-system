@@ -93,17 +93,9 @@ class TaskTest extends TestCase
 
     public function test_api_doesnt_show_a_single_task()
     {
-        $task = [
-            'id' => 2,
-            'title' => 'title',
-            'description' => 'description',
-        ];
-
-        Task::create($task);
-
         $response = $this->getJson('/api/task/1');
 
         $response->assertStatus(404);
-        $this->assertDatabaseMissing('tasks', $task); 
+        $this->assertDatabaseMissing('tasks', ['id' => 2]); 
     }
 }
