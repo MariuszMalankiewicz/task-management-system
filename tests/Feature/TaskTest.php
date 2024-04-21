@@ -73,4 +73,35 @@ class TaskTest extends TestCase
         $response->assertStatus(422);
         $this->assertDatabaseMissing('tasks', $task);
     }
+
+    public function test_api_show_a_single_task()
+    {
+        $task = [
+            'id' => 1,
+            'title' => 'title',
+            'description' => 'description',
+        ];
+
+        Task::create($task);
+
+        $response = $this->getJson('/api/task/1');
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('tasks', $task);
+
+    }
+
+    public function test_api_doesnt_show_a_single_task()
+    {
+        $task = [
+            'id' => 2,
+            'title' => 'title',
+            'description' => 'description',
+        ];
+
+        $response = $this->getJson('/api/task/1');
+
+        $response->assertStatus(404);
+        $this->assertDatabaseMissing('tasks', $task); 
+    }
 }
