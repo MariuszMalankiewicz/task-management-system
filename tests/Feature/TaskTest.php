@@ -98,4 +98,84 @@ class TaskTest extends TestCase
         $response->assertStatus(404);
         $this->assertDatabaseMissing('tasks', ['id' => 2]); 
     }
+
+    public function test_api_update_a_single_task()
+    {
+        $task = [
+            'id' => 1,
+            'title' => 'title',
+            'description' => 'description',
+        ];
+
+        Task::create($task);
+
+        $updateTask = [
+            'id' => 1,
+            'title' => 'update title',
+            'description' => 'update description',
+        ];
+
+        $response = $this->putJson('/api/tasks/1', $updateTask);
+        
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('tasks',
+            [
+                'id' => $updateTask['id'],
+                'title' => $updateTask['title'],
+                'description' => $updateTask['description'],
+            ]);
+    }
+
+    public function test_api_incorrect_identification_of_the_task_to_be_update()
+    {
+        $task = [
+            'id' => 1,
+            'title' => 'title',
+            'description' => 'description',
+        ];
+
+        Task::create($task);
+
+        $updateTask = [
+            'id' => 2,
+            'title' => 'update title',
+            'description' => 'update description',
+        ];
+
+        $response = $this->putJson('/api/tasks/5', $updateTask);
+        
+        $response->assertStatus(404);
+        $this->assertDatabaseMissing('tasks',
+            [
+                'id' => $updateTask['id'],
+                'title' => $updateTask['title'],
+                'description' => $updateTask['description'],
+            ]);
+    }
+
+    public function test_api_task_value_is_required_for_update()
+    {
+        $task = [
+            'id' => 1,
+            'title' => 'title',
+            'description' => 'description'
+        ];
+
+        Task::create($task);
+
+        $updateTask = [
+            'id' => 2,
+            'title' => '',
+            'description' => ''
+        ];
+
+        $response = $this->putJson('/api/tasks/1', $updateTask);
+
+        $response->assertStatus(422);
+        $this->assertDatabaseMissing('tasks', [
+            'id' => $updateTask['id'],
+            'title' => $updateTask['title'],
+            'description' => $updateTask['description'],
+        ]);
+    }
 }
