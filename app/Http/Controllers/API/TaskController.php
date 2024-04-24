@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use App\Http\Resources\TaskResource;
 
 class TaskController extends Controller
 {
@@ -16,10 +17,8 @@ class TaskController extends Controller
     public function index()
     {
         $tasks = Task::all();
-
-        return response()->json([
-            'tasks' => $tasks
-        ]);
+        
+        return TaskResource::collection($tasks);
     }
 
     /**
@@ -27,7 +26,9 @@ class TaskController extends Controller
      */
     public function store(StoreTaskRequest $storeTaskRequest)
     {
-        return Task::create($storeTaskRequest->all());
+        $task = Task::create($storeTaskRequest->all());
+
+        return new TaskResource($task);
     }
 
     /**
@@ -35,7 +36,9 @@ class TaskController extends Controller
      */
     public function show(string $id)
     {
-        return Task::findOrFail($id);
+        $task = Task::findOrFail($id);
+        
+        return new TaskResource($task);
     }
 
     /**
@@ -44,10 +47,10 @@ class TaskController extends Controller
     public function update(UpdateTaskRequest $updateTaskRequest, string $id)
     {
         $task = Task::findOrFail($id);
-
+        
         $task->update($updateTaskRequest->all());
 
-        return response()->json($task);
+        return new TaskResource($task);
     }
 
     /**
