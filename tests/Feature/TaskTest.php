@@ -32,7 +32,7 @@ class TaskTest extends TestCase
 
     public function test_api_return_tasks_list(): void
     {
-        $task = Task::factory()->create();
+        Task::factory()->create();
 
         $response = $this->getjson('/api/tasks');
 
@@ -150,5 +150,25 @@ class TaskTest extends TestCase
             'title' => 'The title field is required.',
             'description' => 'The description field is required.'
         ]);
+    }
+
+    public function test_api_deleted_a_task_success()
+    {
+        $task = Task::factory()->create();
+
+        $response = $this->deleteJson('api/tasks/' . $task->id, [$task]);
+
+        $response->assertStatus(204);
+    }
+
+    public function test_api_incorrect_identification_of_the_task_to_delete()
+    {
+        // factory created id = 1
+        $task = Task::factory()->create();
+        $incorrectId = 9999;
+
+        $response = $this->deleteJson('/api/tasks/' . $incorrectId, [$task]);
+
+        $response->assertStatus(404);
     }
 }
