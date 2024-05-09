@@ -3,10 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Models\Task;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreTaskRequest;
-use App\Http\Requests\UpdateTaskRequest;
+use App\Http\Requests\TaskRequest;
 use App\Http\Resources\TaskResource;
 
 class TaskController extends Controller
@@ -24,9 +22,9 @@ class TaskController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTaskRequest $storeTaskRequest)
+    public function store(TaskRequest $taskRequest)
     {
-        $task = Task::create($storeTaskRequest->all());
+        $task = Task::create($taskRequest->all());
 
         return new TaskResource($task);
     }
@@ -44,11 +42,11 @@ class TaskController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTaskRequest $updateTaskRequest, string $id)
+    public function update(TaskRequest $taskRequest, string $id)
     {
         $task = Task::findOrFail($id);
         
-        $task->update($updateTaskRequest->all());
+        $task->update($taskRequest->all());
 
         return new TaskResource($task);
     }

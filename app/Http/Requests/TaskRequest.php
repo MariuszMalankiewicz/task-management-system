@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreTaskRequest extends FormRequest
+class TaskRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,6 +25,10 @@ class StoreTaskRequest extends FormRequest
         return [
             'title' => 'required',
             'description' => 'required',
+            'status' => [
+                'required',
+                Rule::in(['otwarte', 'w trakcie', 'zamkniete'])
+            ]
         ];
     }
 }

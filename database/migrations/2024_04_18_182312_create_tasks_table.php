@@ -16,7 +16,7 @@ return new class extends Migration
             $table->timestamps();
             $table->string('title');
             $table->text('description');
-            $table->string('status')->default('otwarte');
+            $table->enum('status', ['otwarte', 'w trakcie', 'zamkniete'])->default('otwarte');
         });
     }
 
