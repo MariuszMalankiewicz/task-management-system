@@ -34,7 +34,12 @@ class TaskController extends Controller
      */
     public function show(string $id)
     {
-        $task = Task::findOrFail($id);
+        $task = Task::find($id);
+
+        if($task === null)
+        {
+            return response()->json(null, 404);
+        }
         
         return new TaskResource($task);
     }
@@ -44,7 +49,12 @@ class TaskController extends Controller
      */
     public function update(TaskRequest $taskRequest, string $id)
     {
-        $task = Task::findOrFail($id);
+        $task = Task::find($id);
+
+        if($task === null)
+        {
+            return response()->json(null, 404);
+        }
         
         $task->update($taskRequest->all());
 
@@ -56,7 +66,12 @@ class TaskController extends Controller
      */
     public function destroy(string $id)
     {
-        $task = Task::findOrFail($id);
+        $task = Task::find($id);
+
+        if($task === null)
+        {
+            return response()->json(null, 404);
+        }
 
         $task->delete();
 

@@ -3,172 +3,235 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
-use App\Models\Task;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class TaskTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_api_return_empty_tasks_list(): void
+    public function test_return_empty_structure_tasks_list(): void
     {
-        $response = $this->getjson('/api/tasks');
-
-        $response->assertStatus(200);
-        $response->assertJsonStructure([
-            'data' => [
-                '*' => [
-                    'id',
-                    'title',
-                    'description',
-                    'status',
-                    'created_at',
-                    'update_at',
+        $this->getjson(route('tasks.index'))
+            ->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    '*' => [
+                        'id',
+                        'title',
+                        'description',
+                        'status',
+                        'created_at',
+                        'update_at',
+                    ]
                 ]
-            ]
         ]);
     }
 
-    public function test_api_return_tasks_list(): void
+    public function test_store_successful_task()
     {
-        Task::factory()->create();
+        $task = $this->createTask()->toArray();
 
-        $response = $this->getjson('/api/tasks');
+        $this->postJson(route('tasks.store'), $task)
+            ->assertCreated();
 
-        $response->assertStatus(200);
-        $response->assertJsonCount(1, 'data');
-    }
-
-    public function test_api_check_save_data()
-    {
-        $task = Task::factory()->create();
-
-        $response = $this->postJson('/api/tasks', [
-            'id' => $task->id,
-            'title' => $task->title,
-            'description' => $task->description,
-            'status' => $task->status,
-            'created_at' => $task->created_at,
-            'updated_at' => $task->updated_at
+        $this->assertDatabaseHas('tasks', [
+            'id' => $task['id'],
+            'title' => $task['title'],
+            'description' => $task['description'],
+            'status' => $task['status']
         ]);
-
-        $response->assertStatus(201);
-        $response->assertJsonCount(6, 'data');
     }
 
-    public function test_api_invalid_validation_required()
+    public function test_return_fragment_task_list(): void
+    {
+        $task = $this->createTask();
+
+        $this->getjson(route('tasks.index'))
+            ->assertOk()
+            ->assertJsonFragment([
+                'data' => [ 
+                    array(
+                        'id' => $task->id,
+                        'title' => $task->title,
+                        'description' => $task->description,
+                        'status' => $task->status,
+                        'created_at' => $task->created_at,
+                        'updated_at' => $task->updated_at
+                    )]
+            ]);
+    }
+
+    public function test_field_is_required_for_store_task()
     {
         $task = [
             'title' => '',
-            'description' => ''
+            'description' => '',
+            'status' => ''
         ];
 
-        $response = $this->postJson('/api/tasks', $task);
-
-        $response->assertStatus(422);
-        $response->assertInvalid([
-            'title' => 'The title field is required.',
-            'description' => 'The description field is required.'
-        ]);
-
+        $this->postJson(route('tasks.store'), $task)
+            ->assertUnprocessable()
+            ->assertJson([
+                'data' => array(
+                    'title' => array('The title field is required.'),
+                    'description' => array('The description field is required.'),
+                    'status' => array('The status field is required.')
+                )
+            ]);
     }
 
-    public function test_api_show_a_single_task()
+    public function test_invalid_validation_rules_for_status()
     {
-        $task = Task::factory()->create();
+        $task = [
+            'title' => 'title test',
+            'description' => 'description test',
+            'status' => 'wrong data'
+        ];
 
-        $response = $this->getJson('/api/tasks/' . $task->id);
-
-        $response->assertStatus(200);
-        $response->assertJsonCount(6, 'data');
-
+        $this->postJson(route('tasks.store'), $task)
+            ->assertUnprocessable()
+            ->assertJson([
+                'data' => array(
+                    'status' => array('The selected status is invalid.')
+                )
+            ]);
     }
 
-    public function test_api_doesnt_show_a_single_task()
+    public function test_show_a_single_task()
     {
-        $response = $this->getJson('/api/tasks/1');
+        $task = $this->createTask();
 
-        $response->assertStatus(404);
+        $this->getJson(route('tasks.show', $task->id))
+            ->assertOk()
+            ->assertJsonFragment([
+                'data' => [
+                    'id' => $task['id'],
+                    'title' => $task['title'],
+                    'description' => $task['description'],
+                    'status' => $task['status'],
+                    'created_at' => $task['created_at'],
+                    'updated_at' => $task['updated_at']
+                ]
+            ]);
     }
 
-    public function test_api_update_a_single_task()
+    public function test_invalid_id_for_show_a_single_task()
     {
-        $task = Task::factory()->create();
+        $invalidId = 2;
+
+        $this->getJson(route('tasks.show', $invalidId))
+            ->assertNotFound()
+            ->assertJson([]);
+    }
+
+    public function test_update_successful_a_single_task()
+    {
+        $task = $this->createTask();
 
         $updateTask = [
             'title' => 'update title',
             'description' => 'update description',
+            'status' => 'zamkniete',
         ];
 
-        $response = $this->putJson('/api/tasks/' . $task->id, $updateTask);
-        
-        $response->assertStatus(200);
-        $response->assertJson([
-            'data' => [
-                'title' => $updateTask['title'],
-                'description' => $updateTask['description'],
-            ]
+        $this->putJson(route('tasks.update', $task->id), $updateTask)
+            ->assertOk()
+            ->assertJson([
+                'data' => [
+                    'title' => $updateTask['title'],
+                    'description' => $updateTask['description'],
+                    'status' => $updateTask['status']
+                ]
         ]);
     }
 
-    public function test_api_incorrect_identification_of_the_task_to_be_update()
+    public function test_invalid_id_for_update_task()
     {
         $task = [
             'id' => 1,
             'title' => 'title',
             'description' => 'description',
+            'status' => 'otwarte'
         ];
 
-        Task::create($task);
+        \App\Models\Task::create($task);
 
         $incorrectId = 2;
 
         $updateTask = [
             'title' => 'update title',
             'description' => 'update description',
+            'status' => 'zamkniete'
         ];
 
-        $response = $this->putJson('/api/tasks/' . $incorrectId, $updateTask);
-        
-        $response->assertStatus(404);
+        $this->putJson(route('tasks.update', $incorrectId), $updateTask)
+            ->assertNotFound()
+            ->assertJson([]);
     }
 
-    public function test_api_task_value_is_required_for_update()
+    public function test_field_is_required_for_updated()
     {
-        $task = Task::factory()->create();
+        $task = $this->createTask();
 
         $updateTask = [
             'title' => '',
-            'description' => ''
+            'description' => '',
+            'status' => ''
         ];
 
-        $response = $this->putJson('/api/tasks/' . $task->id, $updateTask);
-
-        $response->assertStatus(422);
-        $response->assertInvalid([
-            'title' => 'The title field is required.',
-            'description' => 'The description field is required.'
-        ]);
+        $this->putJson(route('tasks.update', $task->id), $updateTask)
+            ->assertUnprocessable()
+            ->assertJson([
+                'data' => array(
+                    'title' => array('The title field is required.'),
+                    'description' => array('The description field is required.'),
+                    'status' => array('The status field is required.')
+                )
+            ]);
     }
 
-    public function test_api_deleted_a_task_success()
+    public function test_selected_status_is_invalid_for_update_task()
     {
-        $task = Task::factory()->create();
+        $task = $this->createTask();
 
-        $response = $this->deleteJson('api/tasks/' . $task->id, [$task]);
+        $updateTask = [
+            'status' => 'wrong status'
+        ];
 
-        $response->assertStatus(204);
+        $this->putJson(route('tasks.update', $task->id), $updateTask)
+            ->assertUnprocessable()
+            ->assertJson([
+                'data' => array(
+                    'status' => array('The selected status is invalid.')
+                )
+            ]);
     }
 
-    public function test_api_incorrect_identification_of_the_task_to_delete()
+    public function test_delete_successful_task()
     {
-        // factory created id = 1
-        $task = Task::factory()->create();
+        $task = $this->createTask();
+
+        $this->deleteJson(route('tasks.destroy', $task->id), [$task])
+            ->assertNoContent();
+        
+        $this->assertDatabaseMissing('tasks', [
+                'id' => $task->id,
+                'title' => $task->title,
+                'description' => $task->description,
+                'status' => $task->status,
+                'created_at' => $task->created_at,
+                'updated_at' => $task->updated_at,
+            ]);
+    }
+
+    public function test_invalid_id_for_delete_a_single_task()
+    {
+        $task = $this->createTask()->toArray();
+
         $incorrectId = 9999;
 
-        $response = $this->deleteJson('/api/tasks/' . $incorrectId, [$task]);
-
-        $response->assertStatus(404);
+        $this->deleteJson(route('tasks.destroy', $incorrectId), $task)
+            ->assertNotFound();
     }
+
 }

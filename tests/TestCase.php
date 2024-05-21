@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use App\Models\Task;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -10,5 +11,10 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
         $this->withoutExceptionHandling();
+    }
+
+    public function createTask()
+    {
+        return Task::factory()->create();
     }
 }
