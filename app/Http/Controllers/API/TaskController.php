@@ -2,21 +2,23 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\Task;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TaskRequest;
-use App\Http\Resources\TaskResource;
+use App\Repositories\Task\TaskRepository;
 
 class TaskController extends Controller
 {
+    public function __construct(protected TaskRepository $taskRepository)
+    {
+        $this->taskRepository = $taskRepository;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $tasks = Task::all();
-        
-        return TaskResource::collection($tasks);
+        return $this->taskRepository->all();
     }
 
     /**
@@ -24,57 +26,30 @@ class TaskController extends Controller
      */
     public function store(TaskRequest $taskRequest)
     {
-        $task = Task::create($taskRequest->all());
-
-        return new TaskResource($task);
+        return $this->taskRepository->create($taskRequest);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(int $id)
     {
-        $task = Task::find($id);
-
-        if($task === null)
-        {
-            return response()->json(null, 404);
-        }
-        
-        return new TaskResource($task);
+        return $this->taskRepository->findOrFail($id);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(TaskRequest $taskRequest, string $id)
+    public function update(TaskRequest $taskRequest, int $id)
     {
-        $task = Task::find($id);
-
-        if($task === null)
-        {
-            return response()->json(null, 404);
-        }
-        
-        $task->update($taskRequest->all());
-
-        return new TaskResource($task);
+        return $this->taskRepository->updateOrFail($taskRequest, $id);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(int $id)
     {
-        $task = Task::find($id);
-
-        if($task === null)
-        {
-            return response()->json(null, 404);
-        }
-
-        $task->delete();
-
-        return response()->json(null, 204);
+        return $this->taskRepository->destroyOrFail($id);
     }
 }
