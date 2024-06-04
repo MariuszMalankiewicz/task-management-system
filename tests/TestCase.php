@@ -3,6 +3,7 @@
 namespace Tests;
 
 use App\Models\Task;
+use App\Models\User;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -16,5 +17,24 @@ abstract class TestCase extends BaseTestCase
     public function createTask()
     {
         return Task::factory()->create();
+    }
+
+    public function createUser()
+    {
+        return User::factory()->create()->makeVisible('password');
+    }
+
+    public function makeUser()
+    {
+        return User::factory()->make()->makeVisible('password');
+    }
+
+    public function emptyUser()
+    {
+        return [
+            'name' => '',
+            'email' => '',
+            'password' => '',
+        ];
     }
 }
