@@ -14,9 +14,23 @@ abstract class TestCase extends BaseTestCase
         $this->withoutExceptionHandling();
     }
 
+    public function makeTask()
+    {
+        return Task::factory()->make();
+    }
+
     public function createTask()
     {
         return Task::factory()->create();
+    }
+
+    public function emptyTask()
+    {
+        return [
+            'title' => '',
+            'description' => '',
+            'status' => '',
+        ];
     }
 
     public function createUser()

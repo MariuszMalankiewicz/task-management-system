@@ -29,13 +29,12 @@ class TaskTest extends TestCase
 
     public function test_store_successful_task()
     {
-        $task = $this->createTask()->toArray();
+        $task = $this->makeTask()->toArray();
 
         $this->postJson(route('tasks.store'), $task)
             ->assertCreated();
 
         $this->assertDatabaseHas('tasks', [
-            'id' => $task['id'],
             'title' => $task['title'],
             'description' => $task['description'],
             'status' => $task['status']
@@ -63,11 +62,7 @@ class TaskTest extends TestCase
 
     public function test_field_is_required_for_store_task()
     {
-        $task = [
-            'title' => '',
-            'description' => '',
-            'status' => ''
-        ];
+        $task = $this->emptyTask();
 
         $this->postJson(route('tasks.store'), $task)
             ->assertUnprocessable()
@@ -147,14 +142,7 @@ class TaskTest extends TestCase
 
     public function test_invalid_id_for_update_task()
     {
-        $task = [
-            'id' => 1,
-            'title' => 'title',
-            'description' => 'description',
-            'status' => 'otwarte'
-        ];
-
-        \App\Models\Task::create($task);
+        $task = $this->createTask();
 
         $incorrectId = 2;
 
@@ -173,11 +161,7 @@ class TaskTest extends TestCase
     {
         $task = $this->createTask();
 
-        $updateTask = [
-            'title' => '',
-            'description' => '',
-            'status' => ''
-        ];
+        $updateTask = $this->emptyTask();
 
         $this->putJson(route('tasks.update', $task->id), $updateTask)
             ->assertUnprocessable()
