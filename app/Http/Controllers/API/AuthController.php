@@ -10,7 +10,7 @@ class AuthController extends Controller
 {
     public function store(StoreUserRequest $storeUserRequest)
     {
-        $user = User::create($storeUserRequest->all());
+        $user = User::create($storeUserRequest->validated());
 
         return response()->json([
             'data' => $user,

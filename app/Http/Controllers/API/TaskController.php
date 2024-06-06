@@ -24,7 +24,7 @@ class TaskController extends Controller
      */
     public function store(TaskRequest $taskRequest)
     {
-        $task = Task::create($taskRequest->all());
+        $task = Task::create($taskRequest->validated());
 
         return new TaskResource($task);
     }
@@ -56,7 +56,7 @@ class TaskController extends Controller
             return response()->json(null, 404);
         }
 
-        $task->update($taskRequest->all());
+        $task->update($taskRequest->validated());
 
         return new TaskResource($task);
     }
@@ -75,6 +75,6 @@ class TaskController extends Controller
 
         $task->delete();
 
-        return response()->json(null, 404);
+        return response()->json(null, 204);
     }
 }
