@@ -2,21 +2,25 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\Task;
-use App\Http\Requests\TaskRequest;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\TaskResource;
+use App\Http\Requests\TaskRequest;
+use App\Services\TaskService;
 
 class TaskController extends Controller
 {
+    protected $taskService;
+
+    public function __construct(TaskService $taskService)
+    {
+        $this->taskService = $taskService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $tasks = Task::all();
-
-        return TaskResource::collection($tasks);
+        return $this->taskService->all();
     }
 
     /**
@@ -24,9 +28,7 @@ class TaskController extends Controller
      */
     public function store(TaskRequest $taskRequest)
     {
-        $task = Task::create($taskRequest->validated());
-
-        return new TaskResource($task);
+        return $this->taskService->create($taskRequest);
     }
 
     /**
@@ -34,14 +36,7 @@ class TaskController extends Controller
      */
     public function show(int $id)
     {
-        $task = Task::find($id);
-
-        if (!$task) 
-        {
-            return response()->json(null, 404);
-        }
-
-        return new TaskResource($task);
+        return $this->taskService->findOrFail($id);
     }
 
     /**
@@ -49,16 +44,7 @@ class TaskController extends Controller
      */
     public function update(TaskRequest $taskRequest, int $id)
     {
-        $task = Task::find($id);
-
-        if (!$task) 
-        {
-            return response()->json(null, 404);
-        }
-
-        $task->update($taskRequest->validated());
-
-        return new TaskResource($task);
+        return $this->taskService->updateOrFail($id, $taskRequest);
     }
 
     /**
@@ -66,15 +52,6 @@ class TaskController extends Controller
      */
     public function destroy(int $id)
     {
-        $task = Task::find($id);
-
-        if (!$task) 
-        {
-            return response()->json(null, 404);
-        }
-
-        $task->delete();
-
-        return response()->json(null, 204);
+        return $this->taskService->deleteOrFail($id);
     }
 }
