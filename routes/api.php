@@ -10,5 +10,6 @@ use App\Http\Controllers\API\TaskController;
 
 
 Route::post('/users', [AuthController::class, 'store'])->name('users.store');
+Route::post('/users/login', [AuthController::class, 'login'])->name('users.login');
 
 Route::apiResource('tasks', TaskController::class)->except('create', 'edit');

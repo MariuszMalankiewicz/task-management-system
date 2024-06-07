@@ -14,6 +14,11 @@ abstract class TestCase extends BaseTestCase
         $this->withoutExceptionHandling();
     }
 
+    
+    /***
+        methods for task
+    ***/
+
     public function makeTask()
     {
         return Task::factory()->make();
@@ -32,6 +37,10 @@ abstract class TestCase extends BaseTestCase
             'status' => '',
         ];
     }
+
+    /***
+        methods for user/auth
+    ***/
 
     public function createUser()
     {
