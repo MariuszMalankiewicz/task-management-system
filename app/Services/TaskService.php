@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Task;
+use Illuminate\Support\Facades\Gate;
 
 class TaskService
 {
@@ -25,6 +26,8 @@ class TaskService
     {
         $task = $this->find($id);
 
+        Gate::authorize('update', $task);
+
         if(!$task)
         {
             return null;
@@ -38,6 +41,8 @@ class TaskService
     public function deleteOrFail(int $id)
     {
         $task = $this->find($id);
+
+        Gate::authorize('delete', $task);
 
         if(!$task)
         {

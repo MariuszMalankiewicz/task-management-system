@@ -6,7 +6,6 @@ use App\Services\TaskService;
 use App\Http\Requests\TaskRequest;
 use App\Http\Response\ApiResponse;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
