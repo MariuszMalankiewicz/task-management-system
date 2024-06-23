@@ -27,6 +27,7 @@ class TaskRequest extends FormRequest
         return [
             'title' => 'required',
             'description' => 'required',
+            'user_id' => 'required',
             'status' => [
                 'required',
                 Rule::in(['otwarte', 'w trakcie', 'zamkniete'])

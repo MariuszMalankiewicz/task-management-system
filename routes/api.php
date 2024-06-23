@@ -1,13 +1,12 @@
 <?php
 
+use App\Http\Response\ApiResponse;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\TaskController;
+use App\Http\Controllers\API\LoginController;
+use App\Http\Controllers\API\RegistrationController;
 
-Route::controller(AuthController::class)->group(function()
-{
-    Route::post('users', 'store');
-    Route::post('users/login', 'login');
-});
+Route::post('/registration', RegistrationController::class)->name('registration');
+Route::post('/login', LoginController::class)->name('login');
 
-Route::apiResource('tasks', TaskController::class)->except('create', 'edit')->middleware('auth:sanctum');;
+Route::apiResource('tasks', TaskController::class)->except('create', 'edit')->middleware('auth:sanctum');

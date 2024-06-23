@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\TaskRequest;
 use App\Services\TaskService;
+use App\Http\Requests\TaskRequest;
+use App\Http\Response\ApiResponse;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
@@ -20,7 +22,9 @@ class TaskController extends Controller
      */
     public function index()
     {
-        return $this->taskService->all();
+        $tasks = $this->taskService->all();
+
+        return (new ApiResponse)->apiResponse('Status 200 OK', $tasks, 200);
     }
 
     /**
@@ -28,7 +32,9 @@ class TaskController extends Controller
      */
     public function store(TaskRequest $taskRequest)
     {
-        return $this->taskService->create($taskRequest);
+        $task = $this->taskService->create($taskRequest);
+
+        return (new ApiResponse)->apiResponse('Status 201 Created', $task, 201);
     }
 
     /**
@@ -36,7 +42,9 @@ class TaskController extends Controller
      */
     public function show(int $id)
     {
-        return $this->taskService->findOrFail($id);
+        $task = $this->taskService->find($id);
+
+        return $task ? (new ApiResponse)->apiResponse('Status 200 OK', $task, 200) : (new ApiResponse)->apiResponse('Status 404 Not Found', $task, 404);
     }
 
     /**
@@ -44,7 +52,9 @@ class TaskController extends Controller
      */
     public function update(TaskRequest $taskRequest, int $id)
     {
-        return $this->taskService->updateOrFail($id, $taskRequest);
+        $task = $this->taskService->updateOrFail($id, $taskRequest);
+
+        return $task ? (new ApiResponse)->apiResponse('Status 200 OK', $task, 200) : (new ApiResponse)->apiResponse('Status 404 Not Found', $task, 404); 
     }
 
     /**
@@ -52,6 +62,8 @@ class TaskController extends Controller
      */
     public function destroy(int $id)
     {
-        return $this->taskService->deleteOrFail($id);
+        $task = $this->taskService->deleteOrFail($id);
+
+        return $task ? (new ApiResponse)->apiResponse('successful delete', $task, 204) : (new ApiResponse)->apiResponse('Status 404 Not Found', $task, 404); 
     }
 }

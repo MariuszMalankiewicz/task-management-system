@@ -4,6 +4,7 @@ namespace Tests;
 
 use App\Models\Task;
 use App\Models\User;
+use Laravel\Sanctum\Sanctum;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -14,19 +15,9 @@ abstract class TestCase extends BaseTestCase
         $this->withoutExceptionHandling();
     }
 
-    
-    /***
-        methods for task
-    ***/
-
-    public function makeTask()
+    public function task()
     {
-        return Task::factory()->make();
-    }
-
-    public function createTask()
-    {
-        return Task::factory()->create();
+        return Task::factory();
     }
 
     public function emptyTask()
@@ -35,21 +26,13 @@ abstract class TestCase extends BaseTestCase
             'title' => '',
             'description' => '',
             'status' => '',
+            'user_id' => '',
         ];
     }
 
-    /***
-        methods for user/auth
-    ***/
-
-    public function createUser()
+    public function user()
     {
-        return User::factory()->create()->makeVisible('password');
-    }
-
-    public function makeUser()
-    {
-        return User::factory()->make()->makeVisible('password');
+        return User::factory();
     }
 
     public function emptyUser()
@@ -59,5 +42,13 @@ abstract class TestCase extends BaseTestCase
             'email' => '',
             'password' => '',
         ];
+    }
+
+    public function authUser()
+    {
+        $user = $this->User()->create();
+        Sanctum::actingAs($user);
+
+        return $user;
     }
 }

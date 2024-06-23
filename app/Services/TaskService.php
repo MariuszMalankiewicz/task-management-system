@@ -3,23 +3,17 @@
 namespace App\Services;
 
 use App\Models\Task;
-use App\Http\Response\ApiResponse;
-use App\Http\Resources\TaskResource;
 
 class TaskService
 {
     public function all()
     {
-        $tasks = Task::all();
-
-        return TaskResource::collection($tasks);
+        return Task::all();
     }
 
     public function create(object $data)
     {
-        $task = Task::create($data->validated());
-
-        return new TaskResource($task);
+        return Task::create($data->validated());   
     }
 
     public function find(int $id)
@@ -27,48 +21,29 @@ class TaskService
         return Task::find($id);
     }
 
-    public function fail($task)
-    {
-        return (new ApiResponse)->apiResponse('not found 404', $task, 404);
-    }
-
-    public function findOrFail(int $id)
-    {
-        $task = $this->find($id);
-
-        if (!$task) 
-        {
-            return $this->fail($task);
-        }
-
-        return new TaskResource($task);
-    }
-
     public function updateOrFail(int $id, object $request)
     {
         $task = $this->find($id);
 
-        if (!$task) 
+        if(!$task)
         {
-            return $this->fail($task);
+            return null;
         }
 
         $task->update($request->validated());
 
-        return new TaskResource($task);
+        return $task;
     }
 
     public function deleteOrFail(int $id)
     {
         $task = $this->find($id);
 
-        if (!$task) 
+        if(!$task)
         {
-            return $this->fail($task);
+            return null;
         }
 
-        $task->delete();
-
-        return (new ApiResponse)->apiResponse('successful delete', $task, 204);
+        return $task->delete();
     }
 }
